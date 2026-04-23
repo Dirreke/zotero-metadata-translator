@@ -1,0 +1,1 @@
+pref("autoProcessNew", false);
