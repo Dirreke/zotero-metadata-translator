@@ -31,6 +31,7 @@ function toPinyinArray(text: string): string[] {
         toneType: "none",
         type: "array",
         nonZh: "consecutive",
+        surname: "head",
         v: true, // 吕 -> lv
     }) as string[];
 }
