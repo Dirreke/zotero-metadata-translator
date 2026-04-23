@@ -9,6 +9,17 @@ import { getString } from "../utils/locale";
 type WriteMode = "authors" | "container" | "both";
 type OverwriteAction = "current" | "all" | "cancel";
 
+type ManagedField =
+    | "original-title"
+    | "original-container-title"
+    | "original-author";
+
+const MANAGED_FIELD_ORDER: ManagedField[] = [
+    "original-title",
+    "original-container-title",
+    "original-author",
+];
+
 type BatchState = {
     overwriteAuthorsAll: boolean;
     overwriteContainerAll: boolean;
@@ -25,39 +36,127 @@ export type ProcessOptions = {
     suppressNoSelectionAlert?: boolean;
 };
 
-function removeFieldLines(extra: string, fieldName: string): string[] {
+function dedupeValues(values: string[]): string[] {
+    const seen = new Set<string>();
+    const out: string[] = [];
+
+    for (const v of values.map((x) => x.trim()).filter(Boolean)) {
+        if (!seen.has(v)) {
+            seen.add(v);
+            out.push(v);
+        }
+    }
+
+    return out;
+}
+
+function splitExtra(
+    extra: string,
+): {
+    managed: Record<ManagedField, string[]>;
+    others: string[];
+} {
+    const managed: Record<ManagedField, string[]> = {
+        "original-title": [],
+        "original-container-title": [],
+        "original-author": [],
+    };
+
+    const others: string[] = [];
     const lines = (extra || "").split(/\r?\n/);
-    const re = new RegExp(`^${fieldName}\\s*:`, "i");
-    return lines.filter((line) => !re.test(line.trim()));
+    const re =
+        /^(original-title|original-container-title|original-author)\s*:\s*(.*)$/i;
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        const m = trimmed.match(re);
+
+        if (!m) {
+            others.push(line);
+            continue;
+        }
+
+        const field = m[1].toLowerCase() as ManagedField;
+        const value = (m[2] || "").trim();
+        if (value) {
+            managed[field].push(value);
+        }
+    }
+
+    return { managed, others };
 }
 
-function appendFieldLines(
-    preservedLines: string[],
-    fieldName: string,
-    values: string[],
+function cleanupOtherLines(lines: string[]): string[] {
+    const out = [...lines];
+
+    while (out.length && !out[0].trim()) {
+        out.shift();
+    }
+
+    while (out.length && !out[out.length - 1].trim()) {
+        out.pop();
+    }
+
+    return out;
+}
+
+function buildExtraWithManagedFields(
+    oldExtra: string,
+    updates: Partial<Record<ManagedField, string[]>>,
 ): string {
-    const deduped = [...new Set(values.map((v) => v.trim()).filter(Boolean))];
-    const newLines = deduped.map((v) => `${fieldName}: ${v}`);
-    return [...preservedLines.filter((x) => x.trim() !== ""), ...newLines].join(
-        "\n",
-    );
+    const { managed, others } = splitExtra(oldExtra);
+    const prefixLines: string[] = [];
+
+    for (const field of MANAGED_FIELD_ORDER) {
+        const values =
+            updates[field] !== undefined ? updates[field]! : managed[field];
+
+        const deduped = dedupeValues(values || []);
+        for (const value of deduped) {
+            prefixLines.push(`${field}: ${value}`);
+        }
+    }
+
+    const suffixLines = cleanupOtherLines(others);
+
+    if (!prefixLines.length) {
+        return suffixLines.join("\n");
+    }
+
+    if (!suffixLines.length) {
+        return prefixLines.join("\n");
+    }
+
+    return [...prefixLines, ...suffixLines].join("\n");
 }
 
-function setExtraMultiLine(
+function setManagedFieldValues(
     item: Zotero.Item,
-    fieldName: string,
-    values: string[],
+    updates: Partial<Record<ManagedField, string[]>>,
 ): boolean {
     const oldExtra = String(item.getField("extra") || "");
-    const preserved = removeFieldLines(oldExtra, fieldName);
-    const newExtra = appendFieldLines(preserved, fieldName, values);
+    const newExtra = buildExtraWithManagedFields(oldExtra, updates);
 
     if (newExtra === oldExtra) return false;
     item.setField("extra", newExtra);
     return true;
 }
 
-function hasExtraField(item: Zotero.Item, fieldName: string): boolean {
+function setExtraMultiLine(
+    item: Zotero.Item,
+    fieldName: ManagedField,
+    values: string[],
+): boolean {
+    return setManagedFieldValues(item, {
+        [fieldName]: values,
+    });
+}
+
+function normalizeManagedFieldOrder(item: Zotero.Item): boolean {
+    return setManagedFieldValues(item, {});
+}
+
+function hasExtraField(item: Zotero.Item, fieldName: ManagedField): boolean {
     const extra = String(item.getField("extra") || "");
     const re = new RegExp(`^${fieldName}\\s*:`, "im");
     return re.test(extra);
@@ -112,9 +211,9 @@ function askOverwrite(
                 args: { title: itemTitle, field: fieldName },
             }),
             flags,
-            getString("button-overwrite"),      // button0
-            getString("button-cancel"),         // button1
-            getString("button-overwrite-all"),  // button2
+            getString("button-overwrite"), // 0
+            getString("button-cancel"), // 1
+            getString("button-overwrite-all"), // 2
             null,
             { value: false },
         );
@@ -324,6 +423,10 @@ export async function processItems(
     for (const item of regularItems) {
         try {
             let changed = false;
+
+            // 先统一把 original-title / original-container-title / original-author
+            // 重排到 Extra 开头，且顺序固定
+            changed = normalizeManagedFieldOrder(item) || changed;
 
             if (mode === "authors" || mode === "both") {
                 const r1 = await maybeWriteAuthors(
