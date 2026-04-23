@@ -1,0 +1,64 @@
+{
+  "name": "metadata-translator",
+  "version": "0.1.0",
+  "description": "Generate English metadata for Chinese journal papers and write them into Zotero Extra",
+  "type": "module",
+  "config": {
+    "addonName": "Metadata Translator",
+    "addonID": "metadata-translator@local",
+    "addonRef": "metadatatranslator",
+    "addonInstance": "MetadataTranslator",
+    "prefsPrefix": "extensions.zotero.metadatatranslator"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dirreke/zotero-metadata-translator.git"
+  },
+  "author": "Dirreke",
+  "bugs": {
+    "url": "https://github.com/Dirreke/zotero-metadata-translator/issues"
+  },
+  "homepage": "https://github.com/Dirreke/zotero-metadata-translator#readme",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "start": "zotero-plugin serve",
+    "build": "zotero-plugin build && tsc --noEmit",
+    "lint:check": "prettier --check . && eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "release": "zotero-plugin release",
+    "test": "zotero-plugin test",
+    "update-deps": "npm update --save"
+  },
+  "dependencies": {
+    "pinyin-pro": "^3.28.1",
+    "zotero-plugin-toolkit": "^5.1.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.6.0",
+    "@zotero-plugin/eslint-config": "^0.6.9",
+    "chai": "^6.2.1",
+    "eslint": "^10.2.0",
+    "mocha": "^11.7.5",
+    "prettier": "^3.8.2",
+    "typescript": "^6.0.2",
+    "zotero-plugin-scaffold": "^0.8.6",
+    "zotero-types": "^4.1.2"
+  },
+  "prettier": {
+    "printWidth": 80,
+    "tabWidth": 2,
+    "endOfLine": "lf",
+    "overrides": [
+      {
+        "files": [
+          "*.xhtml"
+        ],
+        "options": {
+          "htmlWhitespaceSensitivity": "css"
+        }
+      }
+    ]
+  }
+}
