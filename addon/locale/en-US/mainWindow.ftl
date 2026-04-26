@@ -1,0 +1,10 @@
+menu-root = 
+    .label = Metadata Translator
+menu-authors = 
+    .label = Write original-author
+menu-container = 
+    .label = Write original-container-title
+menu-both = 
+    .label = Write both author and journal metadata
+menu-map-path = 
+    .label = Show journal mapping file path

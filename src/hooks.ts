@@ -1,5 +1,5 @@
 import { createZToolkit } from "./utils/ztoolkit";
-import { getString, initLocale } from "./utils/locale";
+import { getString, initLocale, registerMainWindowLocale, unregisterMainWindowLocale } from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
 import {
   registerItemContextMenu,
@@ -28,15 +28,20 @@ async function onStartup() {
   addon.data.initialized = true;
 }
 
-async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
-  // 按模板方式：每个主窗口创建 ztoolkit
+async function onMainWindowLoad(win: Window): Promise<void> {
+  // Keep this close to the template / zotero-format-metadata lifecycle:
+  // create ztoolkit first, then insert locale, then register menus.
   addon.data.ztoolkit = createZToolkit();
 
-  registerItemContextMenu(win);
+  registerMainWindowLocale(win);
+
+  registerItemContextMenu();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
-  unregisterItemContextMenu(win);
+  unregisterItemContextMenu();
+  unregisterMainWindowLocale(win);
+  ztoolkit.unregisterAll();
 }
 
 function onShutdown(): void {
@@ -45,9 +50,7 @@ function onShutdown(): void {
     notifierID = null;
   }
 
-  for (const win of Zotero.getMainWindows()) {
-    unregisterItemContextMenu(win);
-  }
+  unregisterItemContextMenu();
 
   ztoolkit.unregisterAll();
   addon.data.dialog?.window?.close();
@@ -64,16 +67,13 @@ async function onNotify(
   event: string,
   type: string,
   ids: Array<string | number>,
-  extraData: { [key: string]: any },
+  _extraData: { [key: string]: any },
 ) {
-  if (
-    event === "add" &&
-    type === "item"
-  ) {
-    await runAutoProcessForNewItems(ids);
-  } else {
+  if (event !== "add" || type !== "item") {
     return;
   }
+
+  await runAutoProcessForNewItems(ids);
 }
 
 /**
@@ -102,7 +102,7 @@ function registerPrefsPane() {
     pluginID: addon.data.config.addonID,
     src: `${rootURI}content/preferences.xhtml`,
     label: getString("prefs-title"),
-    image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.png`,
+    image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.svg`,
   });
 }
 
@@ -121,6 +121,7 @@ function registerNotifier() {
         }
         return;
       }
+
       await addon.hooks.onNotify(event, type, ids, extraData);
     },
   };

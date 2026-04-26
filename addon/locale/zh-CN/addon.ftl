@@ -1,9 +1,3 @@
-menu-root = Metadata Translator
-menu-authors = 写入 original-author
-menu-container = 写入 original-container-title
-menu-both = 同时写入作者与期刊英文元数据
-menu-map-path = 显示期刊映射文件路径
-
 prompt-overwrite-title = 检测到已有字段
 prompt-overwrite-message = 条目“{ $title }”的 Extra 中已存在 { $field }。是否覆盖？
 

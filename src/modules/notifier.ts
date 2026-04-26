@@ -1,6 +1,6 @@
 import { config } from "../../package.json";
 import {
-    isLikelyChineseJournalArticle,
+    isLikelyChineseItem,
     processItems,
 } from "./metadata";
 
@@ -28,7 +28,7 @@ export async function runAutoProcessForNewItems(
     const items = (await Zotero.Items.getAsync(numIds)) as Zotero.Item[];
 
     const targets = items.filter(
-        (item) => item.isRegularItem() && isLikelyChineseJournalArticle(item),
+        (item) => item.isRegularItem() && isLikelyChineseItem(item),
     );
 
     if (!targets.length) {

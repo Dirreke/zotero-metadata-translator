@@ -1,9 +1,3 @@
-menu-root = Metadata Translator
-menu-authors = Write original-author
-menu-container = Write original-container-title
-menu-both = Write both author and journal metadata
-menu-map-path = Show journal mapping file path
-
 prompt-overwrite-title = Existing field detected
 prompt-overwrite-message = Item "{ $title }" already has { $field } in Extra. Do you want to overwrite?
 
