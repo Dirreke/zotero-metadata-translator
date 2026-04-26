@@ -3,7 +3,7 @@
 [![zotero target version](https://img.shields.io/badge/Zotero-7/8/9-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
 [![Using Zotero Plugin Template](https://img.shields.io/badge/Using-Zotero%20Plugin%20Template-blue?style=flat-square&logo=github)](https://github.com/windingwind/zotero-plugin-template)
 
-[中文文档](./doc/README-zhCN.md) | English Document
+[简体中文](./doc/README-zhCN.md) | [English](./README.md)
 
 Metadata Translator is a Zotero plugin for generating English metadata for Chinese journal papers and writing it into the `Extra` field.
 
@@ -18,7 +18,7 @@ It is intended for Zotero users who want to add English author names and English
 
 ## Usage
 
-In Zotero, select one or more items, right-click, and open **Metadata Translator**. The plugin provides the following commands:
+In Zotero, select one or more Chinese items, right-click, and open **Metadata Translator**. The plugin provides the following commands:
 
 - Write `original-author`
 - Write `original-container-title`

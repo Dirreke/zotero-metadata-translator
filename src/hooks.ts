@@ -25,18 +25,22 @@ async function onStartup() {
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
   );
 
+  // 菜单全局注册一次即可。
+  // Zotero 7 路径依赖 ztoolkit，因此必须放在 onMainWindowLoad 创建 ztoolkit 之后。
+  registerItemContextMenu();
+
   addon.data.initialized = true;
 }
 
-async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
+async function onMainWindowLoad(_win: _ZoteroTypes.MainWindow): Promise<void> {
   // 按模板方式：每个主窗口创建 ztoolkit
   addon.data.ztoolkit = createZToolkit();
-
-  registerItemContextMenu(win);
 }
 
-async function onMainWindowUnload(win: Window): Promise<void> {
-  unregisterItemContextMenu(win);
+async function onMainWindowUnload(_win: Window): Promise<void> {
+  // Menu is registered globally.
+  // It is cleaned up in onShutdown via unregisterItemContextMenu()
+  // and ztoolkit.unregisterAll().
 }
 
 function onShutdown(): void {
@@ -45,9 +49,7 @@ function onShutdown(): void {
     notifierID = null;
   }
 
-  for (const win of Zotero.getMainWindows()) {
-    unregisterItemContextMenu(win);
-  }
+  unregisterItemContextMenu();
 
   ztoolkit.unregisterAll();
   addon.data.dialog?.window?.close();
@@ -64,15 +66,10 @@ async function onNotify(
   event: string,
   type: string,
   ids: Array<string | number>,
-  extraData: { [key: string]: any },
+  _extraData: { [key: string]: any },
 ) {
-  if (
-    event === "add" &&
-    type === "item"
-  ) {
+  if (event === "add" && type === "item") {
     await runAutoProcessForNewItems(ids);
-  } else {
-    return;
   }
 }
 
@@ -102,7 +99,7 @@ function registerPrefsPane() {
     pluginID: addon.data.config.addonID,
     src: `${rootURI}content/preferences.xhtml`,
     label: getString("prefs-title"),
-    image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.png`,
+    image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.svg`,
   });
 }
 
@@ -121,6 +118,7 @@ function registerNotifier() {
         }
         return;
       }
+
       await addon.hooks.onNotify(event, type, ids, extraData);
     },
   };

@@ -369,6 +369,14 @@ function showBatchErrors(win: Window, errors: BatchError[]) {
 export function isLikelyChineseItem(item: Zotero.Item): boolean {
     const hasChinese = (text: string) => /[\u3400-\u9fff]/.test(text || "");
 
+    const language = String(item.getField("language") || "")
+        .trim()
+        .toLowerCase();
+
+    if (language === "zh-cn") {
+        return true;
+    }
+
     if (hasChinese(String(item.getField("title") || ""))) return true;
     if (hasChinese(getContainerTitle(item))) return true;
 
@@ -379,15 +387,6 @@ export function isLikelyChineseItem(item: Zotero.Item): boolean {
     }
 
     return false;
-}
-
-export function isLikelyChineseJournalArticle(item: Zotero.Item): boolean {
-    try {
-        const itemTypeName = Zotero.ItemTypes.getName(item.itemTypeID);
-        return itemTypeName === "journalArticle" && isLikelyChineseItem(item);
-    } catch {
-        return false;
-    }
 }
 
 export async function processItems(

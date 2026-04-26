@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "pinyin-pro": "^3.28.1",
-    "zotero-plugin-toolkit": "^5.1.2"
+    "zotero-plugin-toolkit": "5.1.0-beta.13"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
