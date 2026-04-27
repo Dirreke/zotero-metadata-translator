@@ -1,1 +1,1 @@
-pref("autoProcessNew", false);
+// Preferences are read and defaulted in src/modules/preferences.ts.

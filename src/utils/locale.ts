@@ -3,41 +3,31 @@ import { FluentMessageId } from "../../typings/i10n";
 
 export { initLocale, getString, getLocaleID };
 
+const localeFilesForJS = ["addon.ftl", "mainWindow.ftl"];
 
-const localeFilesForJS = [
-  "addon.ftl",
-  "mainWindow.ftl",
-];
-
-const localeFilesForMainWindow = [
-  "addon.ftl",
-  "mainWindow.ftl",
-];
+const localeFilesForMainWindow = ["addon.ftl", "mainWindow.ftl"];
 
 function getLocaleFileFullNames(files: string[]) {
-  return files.map(file => `${addon.data.config.addonRef}-${file}`);
+  return files.map((file) => `${addon.data.config.addonRef}-${file}`);
 }
 
 export function registerMainWindowLocale(win: Window) {
-  getLocaleFileFullNames(localeFilesForMainWindow)
-    .forEach(file => (win as any).MozXULElement.insertFTLIfNeeded(file));
+  getLocaleFileFullNames(localeFilesForMainWindow).forEach((file) =>
+    (win as any).MozXULElement.insertFTLIfNeeded(file),
+  );
 }
 
 export function unregisterMainWindowLocale(win: Window) {
-  getLocaleFileFullNames(localeFilesForMainWindow)
-    .forEach(file => win.document
-      .querySelector(`[href="${file}"]`)
-      ?.remove());
+  getLocaleFileFullNames(localeFilesForMainWindow).forEach((file) =>
+    win.document.querySelector(`[href="${file}"]`)?.remove(),
+  );
 }
 
 /**
  * Initialize locale data
  */
 function initLocale() {
-  const l10n = new Localization(
-    getLocaleFileFullNames(localeFilesForJS),
-    true,
-  );
+  const l10n = new Localization(getLocaleFileFullNames(localeFilesForJS), true);
   addon.data.locale = {
     current: l10n,
   };

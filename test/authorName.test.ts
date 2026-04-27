@@ -1,105 +1,145 @@
 import { expect } from "chai";
 import { creatorToDisplayName } from "../src/utils/pinyin";
 
-describe("creatorToDisplayName", () => {
-    it("parses a full Chinese name in lastName", () => {
-        const creator = {
-            fieldMode: 1,
-            lastName: "王玲玲",
-            firstName: "",
-        };
+describe("creatorToDisplayName", function () {
+  it("parses a full Chinese name in lastName", function () {
+    const creator = {
+      fieldMode: 1,
+      lastName: "王玲玲",
+      firstName: "",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Wang Lingling");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Wang Lingling");
+  });
 
-    it("parses a full Chinese name in firstName", () => {
-        const creator = {
-            fieldMode: 0,
-            lastName: "",
-            firstName: "王玲玲",
-        };
+  it("parses a full Chinese name in firstName", function () {
+    const creator = {
+      fieldMode: 0,
+      lastName: "",
+      firstName: "王玲玲",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Wang Lingling");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Wang Lingling");
+  });
 
-    it("parses separated family and given names", () => {
-        const creator = {
-            fieldMode: 0,
-            lastName: "王",
-            firstName: "玲玲",
-        };
+  it("parses separated family and given names", function () {
+    const creator = {
+      fieldMode: 0,
+      lastName: "王",
+      firstName: "玲玲",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Wang Lingling");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Wang Lingling");
+  });
 
-    it("parses a compound surname", () => {
-        const creator = {
-            fieldMode: 1,
-            lastName: "欧阳娜娜",
-            firstName: "",
-        };
+  it("parses a compound surname", function () {
+    const creator = {
+      fieldMode: 1,
+      lastName: "欧阳娜娜",
+      firstName: "",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Ouyang Nana");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Ouyang Nana");
+  });
 
-    it("uses lv for 吕", () => {
-        const creator = {
-            fieldMode: 1,
-            lastName: "吕强",
-            firstName: "",
-        };
+  it("uses lv for 吕", function () {
+    const creator = {
+      fieldMode: 1,
+      lastName: "吕强",
+      firstName: "",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Lv Qiang");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Lv Qiang");
+  });
 
-    it("parses a common Chinese full name", () => {
-        const creator = {
-            fieldMode: 1,
-            lastName: "晏鸣宇",
-            firstName: "",
-        };
+  it("parses a common Chinese full name", function () {
+    const creator = {
+      fieldMode: 1,
+      lastName: "晏鸣宇",
+      firstName: "",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Yan Mingyu");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Yan Mingyu");
+  });
 
-    it("deduplicates repeated full names across fields", () => {
-        const creator = {
-            fieldMode: 0,
-            lastName: "王玲玲",
-            firstName: "王玲玲",
-            name: "王玲玲",
-        };
+  it("parses 曾乐乐 with the default pinyin display form", function () {
+    const creator = {
+      fieldMode: 1,
+      lastName: "曾乐乐",
+      firstName: "",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Wang Lingling");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Zeng Lele");
+  });
 
-    it("merges Chinese name parts from multiple fields", () => {
-        const creator = {
-            fieldMode: 0,
-            lastName: "欧阳",
-            firstName: "娜娜",
-        };
+  it("deduplicates repeated full names across fields", function () {
+    const creator = {
+      fieldMode: 0,
+      lastName: "王玲玲",
+      firstName: "王玲玲",
+      name: "王玲玲",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Ouyang Nana");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Wang Lingling");
+  });
 
-    it("keeps non-Chinese names unchanged", () => {
-        const creator = {
-            fieldMode: 0,
-            lastName: "Smith",
-            firstName: "John",
-        };
+  it("merges Chinese name parts from multiple fields", function () {
+    const creator = {
+      fieldMode: 0,
+      lastName: "欧阳",
+      firstName: "娜娜",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("Smith John");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Ouyang Nana");
+  });
 
-    it("returns an empty string for an empty creator", () => {
-        const creator = {
-            fieldMode: 0,
-            lastName: "",
-            firstName: "",
-        };
+  it("keeps common non-Chinese names in family-given order", function () {
+    const creator = {
+      fieldMode: 0,
+      lastName: "Smith",
+      firstName: "John",
+    };
 
-        expect(creatorToDisplayName(creator)).to.equal("");
-    });
+    expect(creatorToDisplayName(creator)).to.equal("Smith John");
+  });
+
+  it("keeps foreign creator case and particles", function () {
+    const creator = {
+      fieldMode: 0,
+      lastName: "van der Waals",
+      firstName: "Jan",
+    };
+
+    expect(creatorToDisplayName(creator)).to.equal("van der Waals Jan");
+  });
+
+  it("keeps camel-case foreign family names", function () {
+    const creator = {
+      fieldMode: 0,
+      lastName: "McDonald",
+      firstName: "John",
+    };
+
+    expect(creatorToDisplayName(creator)).to.equal("McDonald John");
+  });
+
+  it("converts comma-form foreign names to family-given order", function () {
+    const creator = {
+      fieldMode: 1,
+      lastName: "De Souza, Maria",
+      firstName: "",
+    };
+
+    expect(creatorToDisplayName(creator)).to.equal("De Souza Maria");
+  });
+
+  it("returns an empty string for an empty creator", function () {
+    const creator = {
+      fieldMode: 0,
+      lastName: "",
+      firstName: "",
+    };
+
+    expect(creatorToDisplayName(creator)).to.equal("");
+  });
 });

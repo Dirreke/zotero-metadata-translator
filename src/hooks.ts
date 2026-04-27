@@ -1,5 +1,10 @@
 import { createZToolkit } from "./utils/ztoolkit";
-import { getString, initLocale, registerMainWindowLocale, unregisterMainWindowLocale } from "./utils/locale";
+import {
+  getString,
+  initLocale,
+  registerMainWindowLocale,
+  unregisterMainWindowLocale,
+} from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
 import {
   registerItemContextMenu,
@@ -29,12 +34,9 @@ async function onStartup() {
 }
 
 async function onMainWindowLoad(win: Window): Promise<void> {
-  // Keep this close to the template / zotero-format-metadata lifecycle:
-  // create ztoolkit first, then insert locale, then register menus.
   addon.data.ztoolkit = createZToolkit();
 
   registerMainWindowLocale(win);
-
   registerItemContextMenu();
 }
 
@@ -53,16 +55,13 @@ function onShutdown(): void {
   unregisterItemContextMenu();
 
   ztoolkit.unregisterAll();
-  addon.data.dialog?.window?.close();
 
   addon.data.alive = false;
+
   // @ts-expect-error - Plugin instance is not typed
   delete Zotero[addon.data.config.addonInstance];
 }
 
-/**
- * 模板风格：事件只做分发
- */
 async function onNotify(
   event: string,
   type: string,
@@ -76,9 +75,6 @@ async function onNotify(
   await runAutoProcessForNewItems(ids);
 }
 
-/**
- * 模板风格：偏好页事件只做分发
- */
 async function onPrefsEvent(type: string, data: { [key: string]: any }) {
   switch (type) {
     case "load":
@@ -89,20 +85,13 @@ async function onPrefsEvent(type: string, data: { [key: string]: any }) {
   }
 }
 
-function onShortcuts(_type: string) {
-  // 当前插件未使用快捷键，保留模板钩子
-}
-
-function onDialogEvents(_type: string) {
-  // 当前插件未使用 dialog helper，保留模板钩子
-}
-
 function registerPrefsPane() {
   Zotero.PreferencePanes.register({
     pluginID: addon.data.config.addonID,
     src: `${rootURI}content/preferences.xhtml`,
     label: getString("prefs-title"),
     image: `chrome://${addon.data.config.addonRef}/content/icons/favicon.svg`,
+    stylesheets: [`${rootURI}/content/preferences.css`],
   });
 }
 
@@ -136,6 +125,4 @@ export default {
   onMainWindowUnload,
   onNotify,
   onPrefsEvent,
-  onShortcuts,
-  onDialogEvents,
 };
