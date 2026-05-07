@@ -31,15 +31,15 @@
   },
   "dependencies": {
     "pinyin-pro": "^3.28.1",
-    "zotero-plugin-toolkit": "5.1.0-beta.13"
+    "zotero-plugin-toolkit": "5.1.2"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.6.2",
     "@zotero-plugin/eslint-config": "^0.6.9",
     "chai": "^6.2.1",
-    "eslint": "^10.2.0",
+    "eslint": "^10.3.0",
     "mocha": "^11.7.5",
     "prettier": "^3.8.2",
     "typescript": "^6.0.2",
