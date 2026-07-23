@@ -30,20 +30,20 @@
     "update-deps": "npm update --save"
   },
   "dependencies": {
-    "pinyin-pro": "^3.28.1",
-    "zotero-plugin-toolkit": "5.1.0-beta.13"
+    "pinyin-pro": "^3.28.2",
+    "zotero-plugin-toolkit": "5.2.0"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.6.0",
-    "@zotero-plugin/eslint-config": "^0.6.9",
+    "@zotero-plugin/eslint-config": "^0.6.10",
     "chai": "^6.2.1",
-    "eslint": "^10.2.0",
-    "mocha": "^11.7.5",
-    "prettier": "^3.8.2",
+    "eslint": "^10.7.0",
+    "mocha": "^11.7.6",
+    "prettier": "^3.9.6",
     "typescript": "^6.0.2",
-    "zotero-plugin-scaffold": "^0.8.6",
+    "zotero-plugin-scaffold": "^0.8.7",
     "zotero-types": "^4.1.2"
   },
   "prettier": {
